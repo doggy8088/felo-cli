@@ -1,0 +1,23 @@
+{
+  "name": "felo-cli",
+  "version": "0.1.0",
+  "author": "Will 保哥",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "felo-cli": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts ./src/cli.ts --outdir ./dist --target node --format esm",
+    "cli": "bun run ./src/cli.ts",
+    "test": "bun test",
+    "typecheck": "bunx tsc --noEmit",
+    "prepublishOnly": "bun run build",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
+  }
+}

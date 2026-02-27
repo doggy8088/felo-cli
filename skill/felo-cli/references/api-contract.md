@@ -2,6 +2,14 @@
 
 This contract is aligned with the official docs at https://openapi.felo.ai/docs/api-reference/v2/chat.html.
 
+## Repository-first usage
+
+For this repository, prefer the local tooling before direct HTTP calls:
+
+1. CLI: `npx -y @willh/felo-cli "<query>"` or `npx -y @willh/felo-cli --json "<query>"`.
+2. SDK: `createFeloClient()` / `feloChat()` from `src/felo-client.ts`.
+3. Use direct API contract details below when implementing/verifying low-level HTTP behavior.
+
 ## Base URL
 
 `https://openapi.felo.ai`

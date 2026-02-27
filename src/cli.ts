@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { FeloApiError, createFeloClient, type FeloChatData, type FeloResource } from "./felo-client";
+import { FeloApiError, createFeloClient, type FeloChatData } from "./felo-client";
 
 const printUsage = (): void => {
   console.log("Usage: felo-cli [--api-key <key>] [--debug] [--json] <query>");
@@ -8,22 +8,6 @@ const printUsage = (): void => {
 const debugLog = (isDebugEnabled: boolean, message: string): void => {
   if (isDebugEnabled) {
     console.error(`[debug] ${message}`);
-  }
-};
-
-const printResources = (resources: FeloResource[]): void => {
-  if (resources.length === 0) {
-    return;
-  }
-
-  console.log("");
-  console.log("Resources:");
-  for (const resource of resources) {
-    console.log(`- ${resource.title}`);
-    console.log(`  ${resource.link}`);
-    if (resource.snippet) {
-      console.log(`  ${resource.snippet}`);
-    }
   }
 };
 
@@ -99,7 +83,6 @@ export const runCli = async (argv: string[] = process.argv.slice(2)): Promise<vo
     return;
   }
   console.log(response.answer);
-  printResources(response.resources);
 };
 
 const printCliError = (error: unknown): void => {

@@ -113,7 +113,7 @@ describe("runCli", () => {
     expect((error as Error).message).toBe("Query text is required.");
   });
 
-  it("parses arguments, calls API, and prints answer/resources", async () => {
+  it("parses arguments, calls API, and prints answer only by default", async () => {
     let calledUrl = "";
     let calledInit: RequestInit | undefined;
     const restoreFetch = replaceGlobalFetch(
@@ -163,16 +163,7 @@ describe("runCli", () => {
     expect(headers.Authorization).toBe("Bearer cli-key");
     expect(calledInit?.method).toBe("POST");
     expect(JSON.parse(String(calledInit?.body))).toEqual({ query: "hello world" });
-    expect(logs).toEqual([
-      "CLI answer",
-      "",
-      "Resources:",
-      "- Doc 1",
-      "  https://example.com/doc-1",
-      "  First snippet",
-      "- Doc 2",
-      "  https://example.com/doc-2",
-    ]);
+    expect(logs).toEqual(["CLI answer"]);
   });
 
   it("prints debug information to stderr when --debug is enabled", async () => {

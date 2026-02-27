@@ -18,14 +18,14 @@
 - `src/cli.ts` is a thin adapter over the client.
   - Parses `--help`, `--api-key <key>`, and positional query parts.
   - Joins positional args into one query string.
-  - Prints `answer` first, then optional `Resources:` block.
+  - Default output prints only `answer`; use `--json` to output full structured response.
   - Formats `FeloApiError` output with optional `Code:` and `Request ID:`.
 - `src/index.ts` is the package barrel export (`felo-client` + `cli`) and includes `healthcheck()` used by scaffold tests.
 - `tests/` maps to runtime behavior:
   - `felo-client.test.ts`: request/response parsing, validation, and error propagation.
   - `cli.test.ts`: CLI argument parsing and exact output format checks.
-  - `skill-files.test.ts`: enforces consistency of `skill/felo-api` docs against the API contract.
-- `skill/felo-api/` is a maintained artifact (not loose docs): tests assert required frontmatter, endpoint/auth details, query constraints, and error-code coverage.
+  - `skill-files.test.ts`: enforces consistency of `skill/felo-cli` docs against the API contract.
+- `skill/felo-cli/` is a maintained artifact (not loose docs): tests assert required frontmatter, endpoint/auth details, query constraints, and error-code coverage.
 
 ## Key repository conventions
 - Runtime/tooling:
@@ -43,11 +43,12 @@
   - Prefer `fetchImpl` injection in client tests.
   - CLI tests replace `globalThis.fetch` and capture `console.log`; exact output lines are part of the contract.
 - Skill-doc constraints (test-enforced):
-  - `skill/felo-api/SKILL.md` frontmatter must only contain `name` and `description`.
+  - `skill/felo-cli/SKILL.md` frontmatter must only contain `name` and `description`.
   - `SKILL.md`, `references/api-contract.md`, and `references/workflow.md` must stay synchronized on endpoint/auth/query/error-code details.
 
 ## Known runtime quirks
 
+- **Default CLI output is intentionally minimal**: successful non-JSON mode prints only `answer`. If callers need `resources`, `query_analysis`, or stable machine parsing, they must use `--json`.
 - **`npm run cli -- --json "..."`** does NOT work: npm intercepts its own `--json` flag before passing args to the script.
   Always use `bun run src/cli.ts --json "..."` (or the compiled `felo-cli` binary) to pass `--json`.
 - **Nullable `snippet` in resources**: The Felo API may return `resources[].snippet` as `null` or omit it entirely (i.e. `undefined`), despite the official docs declaring it as `string`. The client normalizes both cases to `""` so downstream code can always treat `snippet` as `string`.

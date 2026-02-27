@@ -136,10 +136,8 @@ felo-cli 請 說明 向量資料庫 的 主要用途
 
 成功時：
 
-1. 第一行輸出 `answer`
-2. 若有 `resources`，會再輸出：
-   - `Resources:`
-   - 每筆資源的 `title`、`link`、`snippet`（snippet 可能為空）
+1. 預設僅輸出 `answer`
+2. 若需完整回應（含 `resources`），請使用 `--json`
 
 失敗時（stderr）會輸出：
 

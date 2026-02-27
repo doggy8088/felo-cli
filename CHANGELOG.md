@@ -2,6 +2,20 @@
 
 本專案所有重要變更皆記錄於此，格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.0.0/)。
 
+## [0.1.4] - 2026-02-27
+
+### 改善
+- CLI 預設成功輸出改為僅顯示 `answer`，不再自動列出 `resources`；如需完整結構化資料請使用 `--json`。
+- `skill/felo-cli/` 文件改為「本專案工具優先」：先使用 `npx -y @willh/felo-cli` 與 SDK（`createFeloClient` / `feloChat`），直接呼叫 API 僅作驗證與除錯用途。
+- Skill 名稱改為 `felo-cli`，並將目錄從 `skill/felo-api/` 重新命名為 `skill/felo-cli/`。
+
+### 測試
+- 更新 CLI 測試以符合預設僅輸出 `answer` 的行為，並維持 `--json` 回傳完整資料的驗證。
+- 更新 skill 文件測試路徑與描述，對齊 `skill/felo-cli/` 新目錄與 skill 名稱。
+
+### 文件
+- `AGENTS.md` 補充預設輸出策略與執行期注意事項，降低 CLI 使用與除錯時的誤解成本。
+
 ## [0.1.3] - 2026-02-27
 
 ### 新增
@@ -40,5 +54,5 @@
 - `felo-cli` 命令列工具，支援 `--api-key` 參數與 `FELO_API_KEY` 環境變數。
 - `createFeloClient` / `feloChat` SDK 核心，呼叫 `POST /v2/chat` 並驗證回應結構。
 - 結構化錯誤類別 `FeloApiError`，保留 HTTP 狀態碼、錯誤代碼與 Request ID。
-- `skill/felo-api/` 技能文件，含 API 合約與工作流程參考文件。
+- `skill/felo-cli/` 技能文件，含 API 合約與工作流程參考文件。
 - 完整測試套件（CLI、用戶端、Skill 文件一致性）。

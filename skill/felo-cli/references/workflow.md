@@ -2,6 +2,14 @@
 
 This workflow is aligned with the official docs at https://openapi.felo.ai/docs/api-reference/v2/chat.html.
 
+## 0) Prefer repository tools first
+
+In this codebase, default to repository interfaces before raw HTTP:
+
+1. CLI: `npx -y @willh/felo-cli "<query>"` (answer only) or `npx -y @willh/felo-cli --json "<query>"` (full payload).
+2. SDK: `createFeloClient().chat(query)` or `feloChat(query)` from `src/felo-client.ts`.
+3. Raw API call only for protocol verification, troubleshooting, or SDK/CLI parity checks.
+
 ## 1) Preflight
 
 1. Read `FELO_API_KEY` from environment.

@@ -28,16 +28,16 @@ const parseFrontmatter = (markdown: string): { frontmatter: Record<string, strin
   return { frontmatter, body: match[2] };
 };
 
-const skillMd = readText("../skill/felo-api/SKILL.md");
-const apiContract = readText("../skill/felo-api/references/api-contract.md");
-const workflow = readText("../skill/felo-api/references/workflow.md");
+const skillMd = readText("../skill/felo-cli/SKILL.md");
+const apiContract = readText("../skill/felo-cli/references/api-contract.md");
+const workflow = readText("../skill/felo-cli/references/workflow.md");
 const references = `${apiContract}\n${workflow}`;
 
-describe("felo-api skill artifact", () => {
+describe("felo-cli skill artifact", () => {
   it("keeps SKILL.md frontmatter limited to name and description", () => {
     const { frontmatter } = parseFrontmatter(skillMd);
     expect(Object.keys(frontmatter).sort()).toEqual(["description", "name"]);
-    expect(frontmatter.name).toBe("felo-api-agent");
+    expect(frontmatter.name).toBe("felo-cli");
     expect(frontmatter.description.length).toBeGreaterThan(0);
   });
 

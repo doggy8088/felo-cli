@@ -42,6 +42,8 @@
 - Testing patterns:
   - Prefer `fetchImpl` injection in client tests.
   - CLI tests replace `globalThis.fetch` and capture `console.log`; exact output lines are part of the contract.
+- Change management:
+  - Every code fix must include a corresponding `CHANGELOG.md` update in the same change set.
 - Skill-doc constraints (test-enforced):
   - `skill/felo-cli/SKILL.md` frontmatter must only contain `name` and `description`.
   - `SKILL.md`, `references/api-contract.md`, and `references/workflow.md` must stay synchronized on endpoint/auth/query/error-code details.

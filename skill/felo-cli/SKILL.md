@@ -7,7 +7,7 @@ Use this skill for Felo Open Platform chat workflows in this repository.
 
 Prefer project tools in this order:
 
-1. CLI: `npx -y @willh/felo-cli "<query>"` (default answer-only output) or `npx -y @willh/felo-cli --json "<query>"` (full structured output).
+1. CLI: `npx -y @willh/felo-cli --json "<query>"` (always use `--json` when retrieving content so the full structured output is preserved).
 2. SDK: `createFeloClient()` / `feloChat()` from `src/felo-client.ts` when programmatic integration is needed.
 3. Direct API call only when validating protocol-level behavior.
 

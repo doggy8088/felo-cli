@@ -38,7 +38,7 @@ npm install felo-cli
 執行（未全域安裝時）：
 
 ```bash
-npx felo-cli --help
+npx @willh/felo-cli --help
 ```
 
 ### bun
@@ -94,13 +94,13 @@ node dist/cli.js "請解釋什麼是檢索增強生成（RAG）"
 ### 語法
 
 ```bash
-felo-cli [--api-key <key>] [--debug] <query>
+felo-cli [--api-key <key>] [--debug] [--json] [--raw] <query>
 ```
 
 目前原始碼中的等價語法為：
 
 ```bash
-bun run src/cli.ts [--api-key <key>] [--debug] <query>
+bun run src/cli.ts [--api-key <key>] [--debug] [--json] [--raw] <query>
 ```
 
 ### 參數說明
@@ -109,6 +109,9 @@ bun run src/cli.ts [--api-key <key>] [--debug] <query>
 | --- | --- | --- |
 | `--api-key <key>` | 否 | 覆蓋 `FELO_API_KEY` |
 | `--debug` | 否 | 將參數解析與 API 請求/錯誤中繼資料輸出到 `stderr` |
+| `--json` | 否 | 輸出完整 JSON 回應 |
+| `--raw` | 否 | 輸出原始 markdown `answer` |
+| `-V`, `--version` | 否 | 顯示版本 |
 | `-h`, `--help` | 否 | 顯示使用方式 |
 | `<query>` | 是 | 查詢字串；`trim()` 後長度需介於 `1..2000` |
 
@@ -136,8 +139,9 @@ felo-cli 請 說明 向量資料庫 的 主要用途
 
 成功時：
 
-1. 預設僅輸出 `answer`
-2. 若需完整回應（含 `resources`），請使用 `--json`
+1. 預設會將 `answer` 視為 markdown，轉成終端機可讀格式後輸出
+2. 若需輸出原始 markdown，請使用 `--raw`
+3. 若需完整回應（含 `resources`），請使用 `--json`
 
 失敗時（stderr）會輸出：
 
@@ -212,7 +216,7 @@ const client = createFeloClient({
 查詢在 `trim()` 後為空字串，或長度超過 2000。  
 請縮短或補齊查詢內容。
 
-### 3) `Missing value for --api-key.`
+### 3) `error: option '--api-key <key>' argument missing`
 
 CLI 使用了 `--api-key` 但沒有給值。  
 請改成 `--api-key <你的 key>`。

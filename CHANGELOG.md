@@ -2,6 +2,26 @@
 
 本專案所有重要變更皆記錄於此，格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.0.0/)。
 
+## [0.1.5] - 2026-02-27
+
+### 改善
+- CLI 改用更完整的引數解析流程，並新增 `--version` 與 `--raw` 參數。
+- 非 `--json` 模式下，預設會將 `answer` 以 Markdown 渲染後輸出到終端；若需原始 markdown 可使用 `--raw`。
+- 未提供任何參數時，改為直接顯示 help 說明，不再回傳錯誤。
+- `--help` 內容補上 `FELO_API_KEY` 環境變數使用說明。
+
+### 修正
+- 當 API 回應包含不規範縮排（例如全形編號搭配縮排清單）而導致 `**粗體**` 未被 Markdown 轉譯時，CLI 會套用粗體 fallback，避免粗體語法原樣顯示。
+- `--raw` 與 `--json` 改為互斥，避免同時指定時產生語意衝突的輸出行為。
+
+### 測試
+- 更新 CLI 測試，涵蓋 `--version`、`--raw`、無參數顯示 help，以及 help 內容中的 `FELO_API_KEY` 說明。
+- 補強預設輸出為 Markdown 渲染結果的驗證。
+
+### 文件
+- `AGENTS.md` 新增變更管理規範：每次程式碼修正都必須同步更新 `CHANGELOG.md`。
+- `skill/felo-cli/SKILL.md` 更新 CLI 使用建議：在 Skill 取得內容時固定使用 `--json`，以保留完整結構化回應。
+
 ## [0.1.4] - 2026-02-27
 
 ### 改善

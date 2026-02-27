@@ -1,6 +1,6 @@
 {
   "name": "@willh/felo-cli",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "Will 保哥",
   "license": "MIT",
   "repository": {
@@ -19,8 +19,14 @@
     "prepublishOnly": "bun run build",
     "clean": "rimraf dist"
   },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "marked": "^14.1.2",
+    "marked-terminal": "^7.2.0"
+  },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/marked-terminal": "^6.1.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.2"
   }

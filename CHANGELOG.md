@@ -1,0 +1,44 @@
+# 變更日誌
+
+本專案所有重要變更皆記錄於此，格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.0.0/)。
+
+## [0.1.3] - 2026-02-27
+
+### 新增
+- `--json` 參數：直接將 Felo Open API 原始回應以 JSON 格式輸出至 stdout，略過格式化的答案與資源清單。
+
+### 修正
+- 放寬 `resources[].snippet` 解析：當 API 回傳 `null` 或遺漏 `snippet` 欄位時，會正規化為空字串，避免合法回應被判定為格式錯誤。
+- 新增 HTTP 200 內嵌錯誤格式處理：支援 `{ "error": { "code", "summary", "detail" } }`，可轉為 `FeloApiError` 並保留錯誤碼。
+- API 空回應（empty body）改為固定錯誤訊息 `Felo API returned an empty response.`，與「非預期成功 payload」錯誤分流。
+
+### 測試
+- 補上用戶端測試：涵蓋內嵌錯誤格式、`snippet` 為 `null`/遺漏、以及空回應 body 的錯誤訊息。
+
+### 文件
+- `AGENTS.md` 新增已知執行期行為：`npm run ... --json` 旗標攔截、`snippet` 非穩定欄位、內嵌錯誤格式與錯誤訊息對照。
+- `README.md` 補上官方 Open Platform 文件連結與文字修正。
+
+## [0.1.2] - 2026-02-27
+
+### 改善
+- CI 工作流程改用 `npm view` 取得已發佈版本，簡化版號比較邏輯。
+- 將 CI 執行環境的 Node.js 升級至第 22 版。
+- 發佈工作加入 `provenance` 與必要的 `id-token`、`contents` 權限設定。
+
+## [0.1.1] - 2026-02-27
+
+### 新增
+- `--debug` 參數：將除錯資訊輸出至 stderr，包含引數解析、API 呼叫與回應元資料。
+- CI 工作流程：推送時自動比對版號，若有異動則發佈至 npm。
+- `AGENTS.md`：說明專案架構、常規、測試策略與技術規範，供 AI 代理人參考。
+
+## [0.1.0] - 2026-02-27
+
+### 新增
+- 初始版本發佈。
+- `felo-cli` 命令列工具，支援 `--api-key` 參數與 `FELO_API_KEY` 環境變數。
+- `createFeloClient` / `feloChat` SDK 核心，呼叫 `POST /v2/chat` 並驗證回應結構。
+- 結構化錯誤類別 `FeloApiError`，保留 HTTP 狀態碼、錯誤代碼與 Request ID。
+- `skill/felo-api/` 技能文件，含 API 合約與工作流程參考文件。
+- 完整測試套件（CLI、用戶端、Skill 文件一致性）。

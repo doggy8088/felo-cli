@@ -131,11 +131,11 @@ const parseSuccessResponse = (value: unknown): FeloChatSuccessResponse | null =>
     const title = resource.title;
     const snippet = resource.snippet;
 
-    if (typeof link !== "string" || typeof title !== "string" || typeof snippet !== "string") {
+    if (typeof link !== "string" || typeof title !== "string") {
       return null;
     }
 
-    resources.push({ link, title, snippet });
+    resources.push({ link, title, snippet: typeof snippet === "string" ? snippet : "" });
   }
 
   return {
@@ -149,6 +149,21 @@ const parseSuccessResponse = (value: unknown): FeloChatSuccessResponse | null =>
       resources,
     },
   };
+};
+
+interface FeloInlineError {
+  code: number;
+  summary: string;
+  detail: string;
+}
+
+const parseInlineErrorEnvelope = (value: unknown): FeloInlineError | null => {
+  if (!isRecord(value)) return null;
+  const error = value.error;
+  if (!isRecord(error)) return null;
+  const { code, summary, detail } = error;
+  if (typeof code !== "number" || typeof summary !== "string" || typeof detail !== "string") return null;
+  return { code, summary, detail };
 };
 
 const parseErrorResponse = (value: unknown): FeloChatErrorResponse | null => {
@@ -174,7 +189,7 @@ const parseErrorResponse = (value: unknown): FeloChatErrorResponse | null => {
 
 const parseJson = (rawBody: string, statusCode: number): unknown => {
   if (!rawBody) {
-    return null;
+    throw new FeloApiError("Felo API returned an empty response.", { statusCode });
   }
 
   try {
@@ -220,12 +235,19 @@ export const createFeloClient = (options: FeloClientOptions = {}): FeloClient =>
 
       if (response.ok) {
         const success = parseSuccessResponse(parsedBody);
-        if (!success) {
-          throw new FeloApiError("Felo API returned an unexpected success payload.", {
-            statusCode: response.status,
-          });
+        if (success) {
+          return success.data;
         }
-        return success.data;
+
+        const inlineError = parseInlineErrorEnvelope(parsedBody);
+        if (inlineError) {
+          const message = inlineError.summary || inlineError.detail || `Felo API returned an error (code ${inlineError.code}).`;
+          throw new FeloApiError(message, { code: inlineError.code, statusCode: response.status });
+        }
+
+        throw new FeloApiError("Felo API returned an unexpected success payload.", {
+          statusCode: response.status,
+        });
       }
 
       const apiError = parseErrorResponse(parsedBody);

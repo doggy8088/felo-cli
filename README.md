@@ -1,11 +1,13 @@
 # felo-cli
 
-`felo-cli` 是一個 Felo OpenAPI 客戶端，提供：
+`felo-cli` 是一個 Felo Open Platform 客戶端，提供：
 
 - 命令列工具（CLI）
 - 程式化 API（Node/Bun）
 
 核心行為是呼叫 `https://openapi.felo.ai/v2/chat`，傳送 `query` 後取得回答與參考資料。
+
+> 官方 API 文件：[Felo Open Platform Docs](https://openapi.felo.ai/docs/)
 
 ## 專案簡介
 

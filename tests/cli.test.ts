@@ -68,7 +68,7 @@ describe("runCli", () => {
     }
 
     expect(fetchCalled).toBe(false);
-    expect(logs).toEqual(["Usage: felo-cli [--api-key <key>] [--debug] <query>"]);
+    expect(logs).toEqual(["Usage: felo-cli [--api-key <key>] [--debug] [--json] <query>"]);
   });
 
   it("throws when --api-key is missing its value", async () => {
@@ -108,7 +108,7 @@ describe("runCli", () => {
     restoreFetch();
 
     expect(fetchCalled).toBe(false);
-    expect(logs).toEqual(["Usage: felo-cli [--api-key <key>] [--debug] <query>"]);
+    expect(logs).toEqual(["Usage: felo-cli [--api-key <key>] [--debug] [--json] <query>"]);
     expect(error).toBeInstanceOf(Error);
     expect((error as Error).message).toBe("Query text is required.");
   });
@@ -248,5 +248,33 @@ describe("runCli", () => {
       "[debug] Calling Felo API.",
       "[debug] API error metadata: statusCode=401, code=invalid_api_key, requestId=req-debug-1.",
     ]);
+  });
+
+  it("outputs raw JSON response when --json is enabled", async () => {
+    const apiData = {
+      id: "chat-json",
+      message_id: "msg-json",
+      answer: "JSON answer",
+      query_analysis: { queries: ["hello json"] },
+      resources: [{ title: "R1", link: "https://example.com/r1", snippet: "snippet" }],
+    };
+    const restoreFetch = replaceGlobalFetch(
+      (async () =>
+        new Response(
+          JSON.stringify({ status: "ok", message: null, data: apiData }),
+          { status: 200 },
+        )) as typeof fetch,
+    );
+    const { logs, restore } = captureConsoleLog();
+
+    try {
+      await runCli(["--json", "--api-key", "cli-key", "hello", "json"]);
+    } finally {
+      restore();
+      restoreFetch();
+    }
+
+    expect(logs).toHaveLength(1);
+    expect(JSON.parse(logs[0]!)).toEqual(apiData);
   });
 });

@@ -2,7 +2,7 @@
 import { FeloApiError, createFeloClient, type FeloChatData, type FeloResource } from "./felo-client";
 
 const printUsage = (): void => {
-  console.log("Usage: felo-cli [--api-key <key>] [--debug] <query>");
+  console.log("Usage: felo-cli [--api-key <key>] [--debug] [--json] <query>");
 };
 
 const debugLog = (isDebugEnabled: boolean, message: string): void => {
@@ -30,6 +30,7 @@ const printResources = (resources: FeloResource[]): void => {
 export const runCli = async (argv: string[] = process.argv.slice(2)): Promise<void> => {
   let apiKey: string | undefined;
   let debug = false;
+  let json = false;
   const queryParts: string[] = [];
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -52,6 +53,11 @@ export const runCli = async (argv: string[] = process.argv.slice(2)): Promise<vo
 
     if (arg === "--debug") {
       debug = true;
+      continue;
+    }
+
+    if (arg === "--json") {
+      json = true;
       continue;
     }
 
@@ -88,6 +94,10 @@ export const runCli = async (argv: string[] = process.argv.slice(2)): Promise<vo
     debug,
     `API response metadata: id=${response.id}, messageId=${response.message_id}, resources=${response.resources.length}.`,
   );
+  if (json) {
+    console.log(JSON.stringify(response, null, 2));
+    return;
+  }
   console.log(response.answer);
   printResources(response.resources);
 };

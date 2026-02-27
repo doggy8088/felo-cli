@@ -45,3 +45,16 @@
 - Skill-doc constraints (test-enforced):
   - `skill/felo-api/SKILL.md` frontmatter must only contain `name` and `description`.
   - `SKILL.md`, `references/api-contract.md`, and `references/workflow.md` must stay synchronized on endpoint/auth/query/error-code details.
+
+## Known runtime quirks
+
+- **`npm run cli -- --json "..."`** does NOT work: npm intercepts its own `--json` flag before passing args to the script.
+  Always use `bun run src/cli.ts --json "..."` (or the compiled `felo-cli` binary) to pass `--json`.
+- **Nullable `snippet` in resources**: The Felo API may return `resources[].snippet` as `null` or omit it entirely (i.e. `undefined`), despite the official docs declaring it as `string`. The client normalizes both cases to `""` so downstream code can always treat `snippet` as `string`.
+- **Inline error envelope**: The Felo API may return HTTP 200 with `{ "error": { "code": <number>, "summary": "<string>", "detail": "<string>" } }` for internal failures. This is an undocumented format distinct from the standard `{ "status": "error", ... }` error response. The client detects and converts it to a `FeloApiError` using `summary || detail` as the message, falling back to `"Felo API returned an error (code <n>)."` when both are empty.
+- **Distinct error messages for bad responses**: The client uses different `FeloApiError` messages depending on the failure mode:
+  - `"Felo API returned an empty response."` — HTTP response body was empty.
+  - `"Felo API returned invalid JSON."` — body was non-empty but not valid JSON.
+  - `"Felo API returned an unexpected success payload."` — HTTP 2xx with valid JSON that does not match any known success envelope.
+  - `"Felo API returned an error (code <n>)."` — inline error envelope with empty summary/detail.
+  - `"Felo API request failed with status <n>."` — non-2xx status with unrecognized body shape.

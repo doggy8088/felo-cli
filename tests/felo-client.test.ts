@@ -207,4 +207,81 @@ describe("createFeloClient", () => {
     expect((error as Error).message).toBe("Felo API returned an unexpected success payload.");
     expect((error as FeloApiError).statusCode).toBe(200);
   });
+
+  it("handles inline error envelope in 200 response with non-empty summary", async () => {
+    const client = createFeloClient({
+      apiKey: "test-key",
+      fetchImpl: async () =>
+        new Response(
+          JSON.stringify({ error: { code: 1, summary: "Authentication failed", detail: "" } }),
+          { status: 200 },
+        ),
+    });
+
+    const error = await getRejectedError(client.chat("hello"));
+    expect(error).toBeInstanceOf(FeloApiError);
+    expect((error as Error).message).toBe("Authentication failed");
+    expect((error as FeloApiError).code).toBe(1);
+    expect((error as FeloApiError).statusCode).toBe(200);
+  });
+
+  it("handles inline error envelope in 200 response with empty summary and detail", async () => {
+    const client = createFeloClient({
+      apiKey: "test-key",
+      fetchImpl: async () =>
+        new Response(
+          JSON.stringify({ error: { code: 1, summary: "", detail: "" } }),
+          { status: 200 },
+        ),
+    });
+
+    const error = await getRejectedError(client.chat("hello"));
+    expect(error).toBeInstanceOf(FeloApiError);
+    expect((error as Error).message).toBe("Felo API returned an error (code 1).");
+    expect((error as FeloApiError).code).toBe(1);
+    expect((error as FeloApiError).statusCode).toBe(200);
+  });
+
+  it("normalizes null and missing snippet to empty string in resources", async () => {
+    const payload = {
+      status: 200,
+      code: "OK",
+      data: {
+        id: "chat-null-snippet",
+        message_id: "msg-null-snippet",
+        answer: "Answer with null snippet",
+        query_analysis: { queries: ["test"] },
+        resources: [
+          { link: "https://example.com/1", title: "Title 1", snippet: null },
+          { link: "https://example.com/2", title: "Title 2", snippet: "Has snippet" },
+          { link: "https://example.com/3", title: "Title 3" },
+        ],
+      },
+    };
+
+    const client = createFeloClient({
+      apiKey: "test-key",
+      fetchImpl: async () => new Response(JSON.stringify(payload), { status: 200 }),
+    });
+
+    const result = await client.chat("hello");
+    expect(result.resources).toEqual([
+      { link: "https://example.com/1", title: "Title 1", snippet: "" },
+      { link: "https://example.com/2", title: "Title 2", snippet: "Has snippet" },
+      { link: "https://example.com/3", title: "Title 3", snippet: "" },
+    ]);
+  });
+
+  it("throws distinct error for empty response body", async () => {
+    const client = createFeloClient({
+      apiKey: "test-key",
+      fetchImpl: async () => new Response("", { status: 200 }),
+    });
+
+    const error = await getRejectedError(client.chat("hello"));
+    expect(error).toBeInstanceOf(FeloApiError);
+    expect((error as Error).message).toBe("Felo API returned an empty response.");
+    expect((error as FeloApiError).statusCode).toBe(200);
+  });
+
 });

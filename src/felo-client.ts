@@ -84,8 +84,14 @@ const validateQuery = (query: string): void => {
   }
 };
 
+const isLegacySuccessEnvelope = (value: Record<string, unknown>): boolean =>
+  value.status === "ok" && value.message === null;
+
+const isHttpStatusSuccessEnvelope = (value: Record<string, unknown>): boolean =>
+  value.status === 200 && typeof value.code === "string" && value.code.toUpperCase() === "OK";
+
 const parseSuccessResponse = (value: unknown): FeloChatSuccessResponse | null => {
-  if (!isRecord(value) || value.status !== "ok" || value.message !== null) {
+  if (!isRecord(value) || (!isLegacySuccessEnvelope(value) && !isHttpStatusSuccessEnvelope(value))) {
     return null;
   }
 
@@ -146,7 +152,7 @@ const parseSuccessResponse = (value: unknown): FeloChatSuccessResponse | null =>
 };
 
 const parseErrorResponse = (value: unknown): FeloChatErrorResponse | null => {
-  if (!isRecord(value) || value.status !== "error") {
+  if (!isRecord(value) || (value.status !== "error" && !(typeof value.status === "number" && value.status >= 400))) {
     return null;
   }
 

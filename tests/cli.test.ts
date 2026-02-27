@@ -17,6 +17,21 @@ const captureConsoleLog = (): { logs: string[]; restore: () => void } => {
   };
 };
 
+const captureConsoleError = (): { errors: string[]; restore: () => void } => {
+  const errors: string[] = [];
+  const originalError = console.error;
+  console.error = (...args: unknown[]) => {
+    errors.push(args.map((arg) => String(arg)).join(" "));
+  };
+
+  return {
+    errors,
+    restore: () => {
+      console.error = originalError;
+    },
+  };
+};
+
 const replaceGlobalFetch = (fetchImpl: typeof fetch): (() => void) => {
   const originalFetch = globalThis.fetch;
   Object.defineProperty(globalThis, "fetch", {
@@ -53,7 +68,7 @@ describe("runCli", () => {
     }
 
     expect(fetchCalled).toBe(false);
-    expect(logs).toEqual(["Usage: felo-cli [--api-key <key>] <query>"]);
+    expect(logs).toEqual(["Usage: felo-cli [--api-key <key>] [--debug] <query>"]);
   });
 
   it("throws when --api-key is missing its value", async () => {
@@ -93,7 +108,7 @@ describe("runCli", () => {
     restoreFetch();
 
     expect(fetchCalled).toBe(false);
-    expect(logs).toEqual(["Usage: felo-cli [--api-key <key>] <query>"]);
+    expect(logs).toEqual(["Usage: felo-cli [--api-key <key>] [--debug] <query>"]);
     expect(error).toBeInstanceOf(Error);
     expect((error as Error).message).toBe("Query text is required.");
   });
@@ -157,6 +172,81 @@ describe("runCli", () => {
       "  First snippet",
       "- Doc 2",
       "  https://example.com/doc-2",
+    ]);
+  });
+
+  it("prints debug information to stderr when --debug is enabled", async () => {
+    const restoreFetch = replaceGlobalFetch(
+      (async () =>
+        new Response(
+          JSON.stringify({
+            status: "ok",
+            message: null,
+            data: {
+              id: "chat-debug",
+              message_id: "msg-debug",
+              answer: "CLI debug answer",
+              query_analysis: {
+                queries: ["hello debug"],
+              },
+              resources: [],
+            },
+          }),
+          { status: 200 },
+        )) as typeof fetch,
+    );
+    const { logs, restore: restoreLog } = captureConsoleLog();
+    const { errors, restore: restoreError } = captureConsoleError();
+
+    try {
+      await runCli(["--debug", "--api-key", "cli-key", "hello", "debug"]);
+    } finally {
+      restoreLog();
+      restoreError();
+      restoreFetch();
+    }
+
+    expect(logs).toEqual(["CLI debug answer"]);
+    expect(errors).toEqual([
+      "[debug] Parsed arguments: apiKeyFlag=set, queryLength=11.",
+      "[debug] Calling Felo API.",
+      "[debug] API response metadata: id=chat-debug, messageId=msg-debug, resources=0.",
+    ]);
+  });
+
+  it("prints debug API metadata on request failures", async () => {
+    const restoreFetch = replaceGlobalFetch(
+      (async () =>
+        new Response(
+          JSON.stringify({
+            status: "error",
+            code: "invalid_api_key",
+            message: "Invalid API key",
+            request_id: "req-debug-1",
+          }),
+          { status: 401 },
+        )) as typeof fetch,
+    );
+    const { errors, restore: restoreError } = captureConsoleError();
+
+    const error = await (async () => {
+      try {
+        await runCli(["--debug", "--api-key", "bad-key", "hello"]);
+        throw new Error("Expected runCli to throw");
+      } catch (caught) {
+        return caught;
+      }
+    })();
+
+    restoreError();
+    restoreFetch();
+
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toBe("Invalid API key");
+    expect(errors).toEqual([
+      "[debug] Parsed arguments: apiKeyFlag=set, queryLength=5.",
+      "[debug] Calling Felo API.",
+      "[debug] API error metadata: statusCode=401, code=invalid_api_key, requestId=req-debug-1.",
     ]);
   });
 });

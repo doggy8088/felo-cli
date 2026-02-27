@@ -19,6 +19,7 @@
 ## 功能特色
 
 - 支援 `FELO_API_KEY` 環境變數與 `--api-key` 參數
+- 支援 `--debug` 將除錯資訊輸出到 `stderr`
 - `query` 會先 `trim()`，並限制長度 `1..2000` 字元
 - 成功回傳結構化資料：`answer`、`query_analysis.queries`、`resources`
 - 錯誤時提供 `message`、`statusCode`，以及 API 回傳的 `code`、`requestId`
@@ -91,13 +92,13 @@ node dist/cli.js "請解釋什麼是檢索增強生成（RAG）"
 ### 語法
 
 ```bash
-felo-cli [--api-key <key>] <query>
+felo-cli [--api-key <key>] [--debug] <query>
 ```
 
 目前原始碼中的等價語法為：
 
 ```bash
-bun run src/cli.ts [--api-key <key>] <query>
+bun run src/cli.ts [--api-key <key>] [--debug] <query>
 ```
 
 ### 參數說明
@@ -105,6 +106,7 @@ bun run src/cli.ts [--api-key <key>] <query>
 | 參數 | 必填 | 說明 |
 | --- | --- | --- |
 | `--api-key <key>` | 否 | 覆蓋 `FELO_API_KEY` |
+| `--debug` | 否 | 將參數解析與 API 請求/錯誤中繼資料輸出到 `stderr` |
 | `-h`, `--help` | 否 | 顯示使用方式 |
 | `<query>` | 是 | 查詢字串；`trim()` 後長度需介於 `1..2000` |
 

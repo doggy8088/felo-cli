@@ -21,6 +21,13 @@ const validSuccessPayload = {
   },
 };
 
+const validNumericSuccessPayload = {
+  status: 200,
+  code: "OK",
+  data: validSuccessPayload.data,
+  request_id: "req-200",
+};
+
 const getRejectedError = async (promise: Promise<unknown>): Promise<unknown> => {
   try {
     await promise;
@@ -57,6 +64,16 @@ describe("createFeloClient", () => {
       Authorization: "Bearer test-key",
       "Content-Type": "application/json",
     });
+  });
+
+  it("returns chat data on numeric success envelope", async () => {
+    const client = createFeloClient({
+      apiKey: "test-key",
+      fetchImpl: async () => new Response(JSON.stringify(validNumericSuccessPayload), { status: 200 }),
+    });
+
+    const result = await client.chat("hello");
+    expect(result).toEqual(validSuccessPayload.data);
   });
 
   it("throws on empty query", async () => {
@@ -132,6 +149,29 @@ describe("createFeloClient", () => {
     expect((error as FeloApiError).code).toBe("INVALID_QUERY");
     expect((error as FeloApiError).requestId).toBe("req-123");
     expect((error as FeloApiError).statusCode).toBe(400);
+  });
+
+  it("parses numeric-status API error payloads", async () => {
+    const client = createFeloClient({
+      apiKey: "test-key",
+      fetchImpl: async () =>
+        new Response(
+          JSON.stringify({
+            status: 401,
+            code: "UNAUTHORIZED",
+            message: "Invalid API key",
+            request_id: "req-401",
+          }),
+          { status: 401 },
+        ),
+    });
+
+    const error = await getRejectedError(client.chat("bad query"));
+    expect(error).toBeInstanceOf(FeloApiError);
+    expect((error as Error).message).toBe("Invalid API key");
+    expect((error as FeloApiError).code).toBe("UNAUTHORIZED");
+    expect((error as FeloApiError).requestId).toBe("req-401");
+    expect((error as FeloApiError).statusCode).toBe(401);
   });
 
   it("throws a clear error when payload is invalid JSON", async () => {

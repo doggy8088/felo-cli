@@ -2,6 +2,11 @@
 
 本專案所有重要變更皆記錄於此，格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.0.0/)。
 
+## [0.1.6] - 2026-02-27
+
+### 文件
+- `README.md` 的安裝後執行範例改為使用 scoped 套件名稱：`npx @willh/felo-cli --help` 與 `bunx @willh/felo-cli --help`。
+
 ## [0.1.5] - 2026-02-27
 
 ### 改善

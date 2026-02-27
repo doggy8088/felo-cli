@@ -50,7 +50,7 @@ bun add felo-cli
 執行：
 
 ```bash
-bunx felo-cli --help
+bunx @willh/felo-cli --help
 ```
 
 ## 快速開始

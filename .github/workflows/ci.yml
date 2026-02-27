@@ -18,8 +18,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,19 +34,14 @@ jobs:
         shell: bash
         run: |
           current_version="$(node -p "require('./package.json').version")"
-          previous_ref="${{ github.event.before }}"
-          previous_version=""
-
-          if [ "$previous_ref" != "0000000000000000000000000000000000000000" ]; then
-            previous_version="$(git show "$previous_ref:package.json" 2>/dev/null | node -e "const fs = require('node:fs'); const input = fs.readFileSync(0, 'utf8'); if (!input) process.exit(0); try { const pkg = JSON.parse(input); process.stdout.write(String(pkg.version ?? '')); } catch { process.stdout.write(''); }" || true)"
-          fi
+          published_version="$(npm view @willh/felo-cli version 2>/dev/null || true)"
 
           changed="false"
-          if [ -n "$previous_version" ] && [ "$previous_version" != "$current_version" ]; then
+          if [ "$published_version" != "$current_version" ]; then
             changed="true"
           fi
 
-          echo "previous=$previous_version" >> "$GITHUB_OUTPUT"
+          echo "previous=$published_version" >> "$GITHUB_OUTPUT"
           echo "current=$current_version" >> "$GITHUB_OUTPUT"
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
 

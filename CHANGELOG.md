@@ -2,6 +2,11 @@
 
 本專案所有重要變更皆記錄於此，格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.0.0/)。
 
+## [0.1.7] - 2026-02-28
+
+### 修正
+- `tests/skill-files.test.ts` 的 Skill 文件路徑由 `skill/felo-cli/` 更新為 `skills/felo-cli/`，修正目錄更名後 CI 測試找不到檔案的問題。
+
 ## [0.1.6] - 2026-02-27
 
 ### 文件

@@ -28,9 +28,9 @@ const parseFrontmatter = (markdown: string): { frontmatter: Record<string, strin
   return { frontmatter, body: match[2] };
 };
 
-const skillMd = readText("../skill/felo-cli/SKILL.md");
-const apiContract = readText("../skill/felo-cli/references/api-contract.md");
-const workflow = readText("../skill/felo-cli/references/workflow.md");
+const skillMd = readText("../skills/felo-cli/SKILL.md");
+const apiContract = readText("../skills/felo-cli/references/api-contract.md");
+const workflow = readText("../skills/felo-cli/references/workflow.md");
 const references = `${apiContract}\n${workflow}`;
 
 describe("felo-cli skill artifact", () => {
